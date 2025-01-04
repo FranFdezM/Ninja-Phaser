@@ -313,13 +313,13 @@ function onHitEnemy() {
     killPlayer(this)
 }
 
-function onHitFireball(fireball) {
+function onHitFireball(player,fireball) {
     if (fireball.body.touching) {
         killPlayer(this)
     }
 }
 
-function onHitSpike(spike) {
+function onHitSpike(player,spike) {
     if (spike.body.touching.up) {
         killPlayer(this)
     }
