@@ -1,0 +1,73 @@
+@font-face {
+    font-family: 'pixel';
+    src: url('/assets/fonts/pixel.ttf');
+}
+
+body {
+    display:grid;
+    place-items: center;
+    align-items:center;
+    align-content:center;
+    height: 100vh;
+    background: black;
+}
+
+#startGame h1 {
+    font-family: 'pixel';
+    font-size: 30px;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+}
+
+#startGame h1:hover {
+    font-family: 'pixel';
+    font-size: 30px;
+    color: red;
+    text-align: center;
+    cursor: pointer;
+}
+
+#endGame h1{
+    font-family: 'pixel';
+    font-size: 30px;
+    animation: rainbow 1s linear infinite;
+    text-align: center;
+    user-select: none;
+}
+
+#endGame h2.finalTime {
+    font-family: 'pixel';
+    font-size: 15px;
+    color: #fff;
+    text-align: center;
+    user-select: none;
+}
+
+#endGame h2.restart {
+    font-family: 'pixel';
+    font-size: 15px;
+    cursor: pointer;
+    color: #fff;
+    text-align: center;
+    user-select: none;
+}
+
+#endGame h2.restart:hover {
+    color: red;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes rainbow {
+    0% { color: red; }
+    14% { color: orange; }
+    28% { color: yellow; }
+    42% { color: green; }
+    57% { color: cyan; }
+    71% { color: blue; }
+    85% { color: purple; }
+    100% { color: red; }
+}
