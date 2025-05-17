@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,16 +7,36 @@
         <script src="js/phaser.min.js"></script>
         <script type="module" src="js/game.js"></script>
         <link rel="stylesheet" href="css/style.css">
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
     </head>
     <body>
-        <div id="startGame">
-            <h1 onclick="startGame(); document.getElementById('startGame').classList.add('hidden')">Start Game</h1>
+        <div id="menuContainer">
+            <div id="difficultySelector">
+                <h1>Select Difficulty:</h1>
+                <h2 onclick="setDifficulty('easy')" class="easy option">Easy</h2>
+                <h2 onclick="setDifficulty('normal')" class="normal option">Normal</h2>
+                <h2 onclick="setDifficulty('hard')" class="hard option">Hard</h2>
+            </div>
+            <div id="startGame" class="hidden">
+                <h1 class="option" onclick="startGame()">Start Game</h1>
+                <h2>Difficulty selected: <span id="selectedDifficulty"></span></h2>
+                <h2 id="return" class="option" onclick="window.location.reload();">Return</h2>
+            </div>
         </div>
-        <div id="game"></div>
-        <div id="endGame" class="hidden">
-            <h1>You Win!</h1>
-            <h2 class="finalTime"></h2>
-            <h2 class="restart" onclick="restartGame(); document.getElementById('endGame').classList.add('hidden')">Play Again</h2>
+        <div id="gameContainer">
+            <h3 id="difficultyInfo" class="hidden"></h3>
+            <div id="game"></div>
+            <h2 onclick="regenerateMap()" class="hidden option" id="regenerateMap">Regenerate Map</h2>
+            <div id="gameOver" class="hidden">
+                <h1>Game Over</h1>
+                <h2 id="retry" class="option" onclick="restartGame()">Retry</h2>
+            </div>
+            <div id="gameWin" class="hidden">
+                <h1>You Win!</h1>
+                <h2 class="finalTime"></h2>
+            </div>
+            <h2 id="restart" class="option hidden" onclick="window.location.reload()">Restart Game</h2>
+            <audio id="click-sound" src="assets/sound/effects/option.ogg" preload="auto"></audio>
         </div>
     </body>
 </html>
