@@ -1,5 +1,9 @@
 const init_audios = [
     {
+        key: 'optionSound',
+        path: 'assets/sound/effects/option.ogg'
+    },
+    {
         key: 'deathSound',
         path: 'assets/sound/effects/death.mp3'
     },

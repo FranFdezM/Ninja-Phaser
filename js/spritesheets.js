@@ -28,6 +28,12 @@ const init_spritesheets = [
         path: 'assets/entities/fireball-explosion.png',
         frameWidth: 16,
         frameHeight: 16
+    },
+    {
+        key: 'heart',
+        path: 'assets/entities/heart.png',
+        frameWidth: 16,
+        frameHeight: 16
     }
 ]
 

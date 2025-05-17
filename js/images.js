@@ -12,7 +12,7 @@ const init_images = [
         path: 'assets/scenery/floorbricks.png'
     },
     {
-        key: 'platform',
+        key: 'platforms',
         path: 'assets/scenery/platform.png'
     },
     {
