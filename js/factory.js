@@ -80,8 +80,8 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
                     setProperties(game[id].create(floorBrickPositionsXY[i][0], floorBrickPositionsXY[i][1], id))
                 }
             }
-            console.log("Floorbricks:")
-            console.log(floorBrickPositionsXY)
+            //console.log("Floorbricks:")
+            //console.log(floorBrickPositionsXY)
             break
         case 'platforms':
             game[id] = game.physics.add.staticGroup()
@@ -136,8 +136,8 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
                     setProperties(game[id].create(platformPositionsXY[i][0], platformPositionsXY[i][1], id))
                 }
             }
-            console.log("Platforms:")
-            console.log(platformPositionsXY)
+            //console.log("Platforms:")
+            //console.log(platformPositionsXY)
             break
         case "spikes":
             game[id] = game.physics.add.staticGroup()
@@ -193,8 +193,8 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
                     setProperties(game[id].create(spikesPositionsXY[i][0], spikesPositionsXY[i][1], id))
                 }
             }
-            console.log("Spikes:")
-            console.log(spikesPositionsXY)
+            //console.log("Spikes:")
+            //console.log(spikesPositionsXY)
             break
         case "enemies":
             game[id] = game.physics.add.group()
@@ -219,7 +219,7 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
                      .setOffset(game.player.body.offset.x, 32)
                      .flipX = true
             })
-            console.log("Basic Enemies: " + (newMap == true ? number : enemyPositions.length))
+            //console.log("Basic Enemies: " + (newMap == true ? number : enemyPositions.length))
             break
         case "enemies2":
             game[id] = game.physics.add.group()
@@ -244,7 +244,7 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
                      .setOffset(game.player.body.offset.x, 32)
                      .flipX = true
             })
-            console.log("Medium Enemies: " + (newMap == true ? number : enemy2Positions.length))
+            //console.log("Medium Enemies: " + (newMap == true ? number : enemy2Positions.length))
             break
         case "fireballs":
             const spawnInterval = 1000
@@ -258,7 +258,7 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
                 callbackScope: game,
                 loop: true
             })
-            console.log("Fireballs: " + fireballsNumber)
+            //console.log("Fireballs: " + fireballsNumber)
             break
         default:
             break

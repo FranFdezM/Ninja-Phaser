@@ -101,11 +101,11 @@ window.restartGame = function() {
 
 function preload() {
     gameMain = this
-    console.clear()
-    console.log("Difficulty: " + config.difficulty)
+    //console.clear()
+    //console.log("Difficulty: " + config.difficulty)
     debugMode = false
-    console.log("Debug mode: " + debugMode)
-    console.log("Collisions mode: " + config.physics.arcade.debug)
+    //console.log("Debug mode: " + debugMode)
+    //console.log("Collisions mode: " + config.physics.arcade.debug)
     ground = this.physics.world.bounds.height - 74
     elapsedTime = 0
     pausedTime = false
