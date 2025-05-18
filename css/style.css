@@ -3,64 +3,6 @@
     src: url('/assets/fonts/pixel.ttf');
 }
 
-body {
-    display:grid;
-    place-items: center;
-    align-items:center;
-    align-content:center;
-    height: 100vh;
-    background: black;
-}
-
-#startGame h1 {
-    font-family: 'pixel';
-    font-size: 30px;
-    color: #fff;
-    text-align: center;
-    cursor: pointer;
-}
-
-#startGame h1:hover {
-    font-family: 'pixel';
-    font-size: 30px;
-    color: red;
-    text-align: center;
-    cursor: pointer;
-}
-
-#endGame h1{
-    font-family: 'pixel';
-    font-size: 30px;
-    animation: rainbow 1s linear infinite;
-    text-align: center;
-    user-select: none;
-}
-
-#endGame h2.finalTime {
-    font-family: 'pixel';
-    font-size: 15px;
-    color: #fff;
-    text-align: center;
-    user-select: none;
-}
-
-#endGame h2.restart {
-    font-family: 'pixel';
-    font-size: 15px;
-    cursor: pointer;
-    color: #fff;
-    text-align: center;
-    user-select: none;
-}
-
-#endGame h2.restart:hover {
-    color: red;
-}
-
-.hidden {
-    display: none;
-}
-
 @keyframes rainbow {
     0% { color: red; }
     14% { color: orange; }
@@ -70,4 +12,107 @@ body {
     71% { color: blue; }
     85% { color: purple; }
     100% { color: red; }
+}
+
+body {
+    display:grid;
+    place-items: center;
+    align-items:center;
+    align-content:center;
+    height: 100vh;
+    background: black;
+    overflow:hidden;
+}
+
+#difficultySelector, 
+#startGame, 
+#gameOver, 
+#difficultyInfo, 
+#regenerateMap, 
+#gameWin h1, 
+#gameWin h2.finalTime, 
+#restart, 
+#return  {
+    font-family: 'pixel';
+    color: #fff;
+    text-align: center;
+}
+
+#difficultySelector h2, 
+#gameOver h2, 
+#startGame h2:not(#return), 
+#difficultyInfo, 
+#regenerateMap, 
+#gameWin h2.finalTime, 
+#restart, 
+#return {
+    font-size: 15px;
+}
+
+#difficultySelector h2, 
+#gameOver h2, 
+#startGame h1:hover, 
+#regenerateMap, 
+#restart, 
+#return {
+    cursor: pointer;
+}
+
+#startGame h2:not(#return), 
+#difficultySelector, 
+#startGame, 
+#gameOver, 
+#difficultyInfo, 
+#gameWin h2.finalTime, 
+#gameWin h1 {
+    user-select: none;
+}
+
+#difficultySelector h2.easy:hover, 
+#startGame.easy h1:hover, 
+#return.easy:hover, 
+#gameOver h2.easy:hover, 
+#selectedDifficulty.easy, 
+#difficultyInfo.easy, 
+#restart.easy:hover, 
+#retry.easy:hover, 
+#regenerateMap.easy:hover  {
+    color: green;
+}
+
+#difficultySelector h2.normal:hover, 
+#startGame.normal h1:hover, 
+#return.normal:hover, 
+#gameOver h2.normal:hover, 
+#selectedDifficulty.normal, 
+#difficultyInfo.normal, 
+#restart.normal:hover, 
+#retry.normal:hover, 
+#regenerateMap.normal:hover {
+    color: yellow;
+}
+
+#difficultySelector h2.hard:hover, 
+#startGame.hard h1:hover, 
+#return.hard:hover, 
+#gameOver h2.hard:hover, 
+#selectedDifficulty.hard, 
+#difficultyInfo.hard, 
+#restart.hard:hover, 
+#retry.hard:hover, 
+#regenerateMap.hard:hover {
+    color: red;
+}
+
+#gameWin h1{
+    font-size: 30px;
+    animation: rainbow 1s linear infinite;
+}
+
+.slashed {
+    text-decoration: line-through;
+}
+
+.hidden {
+    display: none;
 }
