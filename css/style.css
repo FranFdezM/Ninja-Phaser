@@ -30,7 +30,7 @@ body {
 #difficultyInfo, 
 #regenerateMap, 
 #gameWin h1, 
-#gameWin h2.finalTime, 
+#gameWin h2, 
 #restart, 
 #return  {
     font-family: 'pixel';
@@ -43,7 +43,7 @@ body {
 #startGame h2:not(#return), 
 #difficultyInfo, 
 #regenerateMap, 
-#gameWin h2.finalTime, 
+#gameWin h2, 
 #restart, 
 #return {
     font-size: 15px;
@@ -54,7 +54,8 @@ body {
 #startGame h1:hover, 
 #regenerateMap, 
 #restart, 
-#return {
+#return,
+#nextMap {
     cursor: pointer;
 }
 
@@ -76,7 +77,8 @@ body {
 #difficultyInfo.easy, 
 #restart.easy:hover, 
 #retry.easy:hover, 
-#regenerateMap.easy:hover  {
+#regenerateMap.easy:hover,
+#nextMap.easy:hover  {
     color: green;
 }
 
@@ -88,7 +90,8 @@ body {
 #difficultyInfo.normal, 
 #restart.normal:hover, 
 #retry.normal:hover, 
-#regenerateMap.normal:hover {
+#regenerateMap.normal:hover,
+#nextMap.normal:hover {
     color: yellow;
 }
 
@@ -100,7 +103,8 @@ body {
 #difficultyInfo.hard, 
 #restart.hard:hover, 
 #retry.hard:hover, 
-#regenerateMap.hard:hover {
+#regenerateMap.hard:hover,
+#nextMap.hard:hover {
     color: red;
 }
 

@@ -7,6 +7,18 @@ import { initSpritesheets } from "./spritesheets.js"
 import { generateFactory } from "./factory.js"
 import { setNewMap } from "./factory.js"
 
+(function() {
+  const originalLog = console.log;
+  let phaserLogged = false;
+  console.log = function(...args) {
+    if (args[0] && typeof args[0] === 'string' && args[0].includes('Phaser')) {
+      if (phaserLogged) return;
+      phaserLogged = true;
+    }
+    originalLog.apply(console, args);
+  };
+})();
+
 // ------- Global game variables
 var gameStart
 var gameMain
@@ -47,6 +59,7 @@ window.setDifficulty = function(selection) {
     document.getElementById('retry').classList.add(selection)
     document.getElementById('regenerateMap').classList.add(selection)
     document.getElementById('difficultySelector').classList.add('hidden')
+    document.getElementById('nextMap').classList.add(selection)
 }
 
 // Game config
@@ -81,17 +94,17 @@ window.startGame = () => {
 }
 
 window.regenerateMap = () => {
-    stopAudio('backgroundMusic', game)
-    restartGame()
+    nextGame()
 }
 
-window.restartGame = function() {
+window.nextGame = function() {
     gameStart.destroy(true)
     let gameContainer = document.getElementById('game')
     gameContainer.innerHTML = ''
     newMap = true
     setNewMap(newMap)
     gameStart = new Phaser.Game(config)
+    document.getElementById('gameWin').classList.add('hidden')
     document.getElementById('gameOver').classList.add('hidden')
     document.getElementById('game').classList.remove('hidden')
     document.getElementById('difficultyInfo').classList.remove('hidden')
@@ -456,9 +469,6 @@ function showGameOver(game) {
 } 
 
 function onFinishGame() {
-    stopAudio('backgroundMusic', this)
-    playAudio('winMusic', this, {loop: true, volume: 0.5})
-    document.getElementById('regenerateMap').classList.add('hidden')
     finishGame(this)
 }
 
@@ -470,6 +480,9 @@ function destroyFireball(fireball) {
 }
 
 function finishGame(game) {
+    stopAudio('backgroundMusic', game)
+    playAudio('winMusic', game, {loop: true, volume: 0.5})
+    document.getElementById('regenerateMap').classList.add('hidden')
     game.scene.pause()
     document.getElementsByClassName('finalTime')[0].innerHTML = 'Time: ' + `${pad(minutes)}:${pad(seconds)}`
     document.getElementById('gameWin').classList.remove('hidden')

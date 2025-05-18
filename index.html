@@ -29,11 +29,12 @@
             <h2 onclick="regenerateMap()" class="hidden option" id="regenerateMap">Regenerate Map</h2>
             <div id="gameOver" class="hidden">
                 <h1>Game Over</h1>
-                <h2 id="retry" class="option" onclick="restartGame()">Retry</h2>
+                <h2 id="retry" class="option" onclick="nextGame()">Retry</h2>
             </div>
             <div id="gameWin" class="hidden">
                 <h1>You Win!</h1>
                 <h2 class="finalTime"></h2>
+                <h2 id="nextMap" class="option" onclick="nextGame()">Next Map</h2>
             </div>
             <h2 id="restart" class="option hidden" onclick="window.location.reload()">Restart Game</h2>
             <audio id="click-sound" src="assets/sound/effects/option.ogg" preload="auto"></audio>
