@@ -5,29 +5,58 @@ import { playAudio } from "./audio.js"
 import { stopAudio } from "./audio.js"
 import { initSpritesheets } from "./spritesheets.js"
 import { generateFactory } from "./factory.js"
+import { setNewMap } from "./factory.js"
 
-// ------- Global
-var globalGame
+// ------- Global game variables
+var gameStart
+var gameMain
+var difficulty
+var ground
+var newMap = true
 
 // Timer
 var startTime
 var elapsedTime
-var pausedGame
+var pausedTime
 var minutes
 var seconds
 
 // Debug
 var debugMode
 
-// Game
-window.startGame = () => new Phaser.Game(config)
-var groundY
-const config = {
+// Menu
+const clickSound = document.getElementById("click-sound")
+
+document.querySelectorAll(".option").forEach(el => {
+  el.addEventListener("click", () => {
+    clickSound.play()
+  })
+})
+
+window.setDifficulty = function(selection) {
+    config.difficulty = selection
+    document.getElementById('startGame').classList.add(selection)
+    document.getElementById('startGame').classList.remove('hidden')
+    document.getElementById('return').classList.add(selection)
+    document.getElementById('return').classList.remove('hidden')
+    document.getElementById('selectedDifficulty').classList.add(selection)
+    document.getElementById('selectedDifficulty').innerHTML = selection.toUpperCase()
+    document.getElementById('difficultyInfo').classList.add(selection)
+    document.getElementById('difficultyInfo').innerHTML = selection.toUpperCase()
+    document.getElementById('restart').classList.add(selection)
+    document.getElementById('retry').classList.add(selection)
+    document.getElementById('regenerateMap').classList.add(selection)
+    document.getElementById('difficultySelector').classList.add('hidden')
+}
+
+// Game config
+export const config = {
     type: Phaser.AUTO,
     width: 512,
     height: 488,
     backgroundColor: '#049ada',
     parent: 'game',
+    difficulty: difficulty,
     physics: {
         default: 'arcade',
         arcade: {
@@ -42,29 +71,93 @@ const config = {
     }
 }
 
+window.startGame = () => {
+    gameStart = new Phaser.Game(config)
+    document.getElementById('difficultyInfo').classList.remove('hidden')
+    document.getElementById('startGame').classList.add('hidden')
+    document.getElementById('return').classList.add('hidden')
+    document.getElementById('regenerateMap').classList.remove('hidden')
+    document.getElementById('restart').classList.remove('hidden')
+}
+
+window.regenerateMap = () => {
+    stopAudio('backgroundMusic', game)
+    restartGame()
+}
+
 window.restartGame = function() {
-    globalGame.scene.restart()
-    pausedGame = true
+    gameStart.destroy(true)
+    let gameContainer = document.getElementById('game')
+    gameContainer.innerHTML = ''
+    newMap = true
+    setNewMap(newMap)
+    gameStart = new Phaser.Game(config)
+    document.getElementById('gameOver').classList.add('hidden')
+    document.getElementById('game').classList.remove('hidden')
+    document.getElementById('difficultyInfo').classList.remove('hidden')
+    document.getElementById('regenerateMap').classList.remove('hidden')
+    pausedTime = true
 }
 
 function preload() {
+    gameMain = this
+    console.clear()
+    console.log("Difficulty: " + config.difficulty)
     debugMode = false
-    globalGame = this
-    groundY = 315
+    console.log("Debug mode: " + debugMode)
+    console.log("Collisions mode: " + config.physics.arcade.debug)
+    ground = this.physics.world.bounds.height - 74
     elapsedTime = 0
-    pausedGame = false
+    pausedTime = false
     initImages(this)
     initAudio(this)
     initSpritesheets(this)
 }
 
 function create() {
-    this.physics.world.setBounds(0,0,5000,config.height)
-    generateFactory('clouds',this,15,100,50,200)
-    generateFactory('goal',this,1,4900,groundY-20)
-    generateFactory('floorbricks',this,0,0,config.height)
-    generateFactory('platform',this,0,0,config.height)
-    generateFactory('spikes',this,0,0,config.height)
+    let bounds = 0
+    let floorbrickQuantity = 0
+    let platformHeightStart = Phaser.Math.Between(ground,ground-90)
+    let platformHeightLimit = 0
+    let spikesQuantity = 0
+    let enemiesQuantity = 0
+    let enemies2Quantity = 0
+    let fireballsQuantity = 0
+    switch (config.difficulty) {
+        case 'easy':
+            bounds = Phaser.Math.Between(6000,7000)
+            floorbrickQuantity = Phaser.Math.Between(15,20)
+            platformHeightLimit = ground-100
+            spikesQuantity = Phaser.Math.Between(20,30)
+            enemiesQuantity = Phaser.Math.Between(6,12)
+            enemies2Quantity = Phaser.Math.Between(3,5)
+            fireballsQuantity = 0
+            break
+        case 'normal':
+            bounds = Phaser.Math.Between(10000,11000)
+            floorbrickQuantity = Phaser.Math.Between(10,15)
+            platformHeightLimit = ground-200
+            spikesQuantity = Phaser.Math.Between(30,50)
+            enemiesQuantity = Phaser.Math.Between(5,10)
+            enemies2Quantity = Phaser.Math.Between(5,8)
+            fireballsQuantity = Phaser.Math.Between(0,1)
+            break
+        case 'hard':
+            bounds = Phaser.Math.Between(15000,16000)
+            floorbrickQuantity = Phaser.Math.Between(5,10)
+            platformHeightLimit = ground-280
+            spikesQuantity = Phaser.Math.Between(50,80)
+            enemiesQuantity = Phaser.Math.Between(3,8)
+            enemies2Quantity = Phaser.Math.Between(8,10)
+            fireballsQuantity = Phaser.Math.Between(1,2)
+            break
+    }
+    this.physics.world.setBounds(0,0,bounds,config.height)
+    generateFactory('clouds',this,30,100,50,200)
+    generateFactory('goal',this,1,bounds - 100,ground)
+    generateFactory('floorbricks',this,floorbrickQuantity,0,config.height)
+    generateFactory('platforms',this,0,150,platformHeightStart,platformHeightLimit)
+    generateFactory('spikes',this,spikesQuantity)
 
     this.player = this.physics.add.sprite(0, 200, 'player')
         .setScale(2)
@@ -74,7 +167,9 @@ function create() {
     this.player.body.setOffset(this.player.body.offset.x, 32)
     this.player.isJumping = false
 
-    this.cameras.main.setBounds(0, 0, 5000, config.height)
+    this.cameras.main.setBounds(0, 0, bounds, config.height)
+
+    // Debug Mode
     if (debugMode) {
         this.cameraControl = this.add.rectangle(100, 100, 10, 10, 0x000000, 0)
         this.cameras.main.startFollow(this.cameraControl)
@@ -85,30 +180,30 @@ function create() {
 
     createAnimations(this)
 
-    generateFactory('enemies',this,0,0,groundY)
-    generateFactory('enemies2',this,0,0,groundY)
-    generateFactory('fireballs',this,(debugMode ? 0:2))
+    generateFactory('enemies',this,enemiesQuantity)
+    generateFactory('enemies2',this,enemies2Quantity)
+    generateFactory('fireballs',this,(debugMode ? 0:fireballsQuantity))
 
     // Collisions
     this.physics.add.collider(this.player, this.floorbricks)
-    this.physics.add.collider(this.player, this.platform)
+    this.physics.add.collider(this.player, this.platforms)
     this.physics.add.collider(this.player, this.spikes, onHitSpike, null, this)
     this.physics.add.collider(this.player, this.fireballs, onHitFireball, null, this)
     this.physics.add.collider(this.player, this.goal, onFinishGame, null, this)
     this.physics.add.collider(this.player, this.enemies, onHitEnemy, null, this)
     this.physics.add.collider(this.player, this.enemies2, onHitEnemy, null, this)
     this.physics.add.collider(this.enemies, this.floorbricks)
-    this.physics.add.collider(this.enemies, this.platform)
+    this.physics.add.collider(this.enemies, this.platforms)
     this.physics.add.collider(this.enemies, this.spikes)
     this.physics.add.collider(this.enemies, this.fireballs)
     this.physics.add.collider(this.enemies2, this.floorbricks)
-    this.physics.add.collider(this.enemies2, this.platform)
+    this.physics.add.collider(this.enemies2, this.platforms)
     this.physics.add.collider(this.enemies2, this.spikes)
     this.physics.add.collider(this.enemies2, this.fireballs)
     this.physics.add.collider(this.floorbricks, this.fireballs)
-    this.physics.add.collider(this.platform, this.fireballs)
+    this.physics.add.collider(this.platforms, this.fireballs)
 
-    // Keys
+    // Inputs
     this.keys = this.input.keyboard.createCursorKeys()
     this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
     this.upKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
@@ -125,16 +220,28 @@ function create() {
     // Timer creation
     elapsedTime = 0
     startTime = this.time.now - elapsedTime
-    this.timerText = this.add.text(10, 10, "00:00", {
-        font: "20px pixel",
+    this.timerText = this.add.text(12, 27, "00:00", {
+        font: "15px pixel",
         fill: "#ffffff"
     })
     this.timerText.setScrollFactor(0)
 
-    // Debug end
-    this.input.keyboard.on("keydown-P", () => {
-        finishGameDebug(this)
-    })
+    //Life creation
+    if (newMap) {
+        this.lives = 3
+        newMap = false
+    }
+    for (let i = 0; i < this.lives; i++) {
+        const x = 20 + i * 20
+        this.add.image(x, 15, 'heart').setScale(1.2).setScrollFactor(0)
+    }
+
+    setNewMap(newMap)
+
+    // Debug finish input
+    // this.input.keyboard.on("keydown-P", () => {
+    //     finishGame(this)
+    // })
 }
 
 function update(time) {
@@ -144,12 +251,12 @@ function update(time) {
     const isPlayerTouchingFloor = player.body.touching.down
     const speed = isPlayerTouchingFloor ? 200 : 150
     const cameraView = this.cameras.main.worldView
-    var explotaFireball = false
+    var explodeFireball = false
 
     // Timer update
-    if (pausedGame) {
+    if (pausedTime) {
         startTime = this.time.now
-        pausedGame = false
+        pausedTime = false
     }
     elapsedTime = this.time.now - startTime
     minutes = Math.floor(elapsedTime / 60000)
@@ -231,75 +338,79 @@ function update(time) {
     }
 
     // --- Enemies ---
-    enemies.getChildren().forEach((enemy) => {
-        if (enemy.active) {
-            if (enemy.x > cameraView.x && enemy.x < cameraView.x + cameraView.width &&
-                enemy.y > cameraView.y && enemy.y < cameraView.y + cameraView.height && !debugMode && enemy.body.velocity.x == 0) {
-                enemy.setVelocityX(-100)
+    if (enemies.getChildren().length > 0) {
+        enemies.getChildren().forEach((enemy) => {
+            if (enemy.active) {
+                if (enemy.x > cameraView.x && enemy.x < cameraView.x + cameraView.width &&
+                    enemy.y > cameraView.y && enemy.y < cameraView.y + cameraView.height && !debugMode && enemy.body.velocity.x == 0) {
+                    enemy.setVelocityX(-100)
+                }
+                if (enemy.body.blocked.left || enemy.body.blocked.right) {
+                    enemy.flipX = !enemy.flipX
+                    enemy.setVelocityX(enemy.flipX ? -100 : 100)
+                }
+                if (enemy.y == 392) {
+                    enemy.setVelocityY(200)
+                    enemy.isFalling = true
+                    enemy.setCollideWorldBounds(false)
+                }
+                if (enemy.isFalling) {
+                    enemy.isFalling = false
+                }
+                if (enemy.y > this.game.config.height) {
+                    enemy.destroy()
+                }
             }
-            if (enemy.body.blocked.left || enemy.body.blocked.right) {
-                enemy.flipX = !enemy.flipX
-                enemy.setVelocityX(enemy.flipX ? -100 : 100)
+        })
+    }
+    
+    if (enemies2.getChildren().length > 0) {
+        enemies2.getChildren().forEach((enemy) => {
+            if (enemy.active) {
+                if (enemy.x > cameraView.x && enemy.x < cameraView.x + cameraView.width &&
+                    enemy.y > cameraView.y && enemy.y < cameraView.y + cameraView.height && 
+                    Phaser.Math.Distance.Between(player.x, player.y, enemy.x, enemy.y) < 230) {
+                        if (this.player.x < enemy.x) {
+                            enemy.setVelocityX(-100)
+                            enemy.flipX = true
+                        } else if (this.player.x > enemy.x) {
+                            enemy.setVelocityX(100)
+                            enemy.flipX = false
+                        }
+                        else if (this.player.x == enemy.x) {
+                            enemy.setVelocityX(0)
+                        }
+                }
+                
+                if (enemy.y == 392) {
+                    enemy.setVelocityY(200)
+                    enemy.isFalling = true
+                    enemy.setCollideWorldBounds(false)
+                }
+    
+                if (enemy.isFalling) {
+                    enemy.isFalling = false
+                }
+    
+                if (enemy.y > this.game.config.height) {
+                    enemy.destroy()
+                }
             }
-            if (enemy.y == 392) {
-                enemy.setVelocityY(200)
-                enemy.isFalling = true
-                enemy.setCollideWorldBounds(false)
-            }
-            if (enemy.isFalling) {
-                enemy.isFalling = false
-            }
-            if (enemy.y > this.game.config.height) {
-                enemy.destroy()
-            }
-        }
-    })
-
-    enemies2.getChildren().forEach((enemy) => {
-        if (enemy.active) {
-            if (enemy.x > cameraView.x && enemy.x < cameraView.x + cameraView.width &&
-                enemy.y > cameraView.y && enemy.y < cameraView.y + cameraView.height && 
-                Phaser.Math.Distance.Between(player.x, player.y, enemy.x, enemy.y) < 230) {
-                    if (this.player.x < enemy.x) {
-                        enemy.setVelocityX(-100)
-                        enemy.flipX = true
-                    } else if (this.player.x > enemy.x) {
-                        enemy.setVelocityX(100)
-                        enemy.flipX = false
-                    }
-                    else if (this.player.x == enemy.x) {
-                        enemy.setVelocityX(0)
-                    }
-            }
-            
-            if (enemy.y == 392) {
-                enemy.setVelocityY(200)
-                enemy.isFalling = true
-                enemy.setCollideWorldBounds(false)
-            }
-
-            if (enemy.isFalling) {
-                enemy.isFalling = false
-            }
-
-            if (enemy.y > this.game.config.height) {
-                enemy.destroy()
-            }
-        }
-    })
-
+        })
+    }
+    
     // --- Fireballs ---
     fireballs.getChildren().forEach((fireball) => {
         if (fireball.active) {
-            if (fireball.body.blocked.down && !explotaFireball) {
-                explotaFireball = true
+            if (fireball.body.blocked.down && !explodeFireball) {
+                explodeFireball = true
                 destroyFireball(fireball)
-                explotaFireball = false
+                explodeFireball = false
             }
-            if (fireball.body.touching.down && !explotaFireball) {
-                explotaFireball = true
+            if (fireball.body.touching.down && !explodeFireball) {
+                explodeFireball = true
                 destroyFireball(fireball)
-                explotaFireball = false
+                explodeFireball = false
             }
         }
     })
@@ -329,12 +440,26 @@ function killPlayer(game) {
     const {scene} = game
     playAudio('deathSound', game)
     scene.restart()
+    game.lives -= 1
+    if (game.lives == 0) {
+        showGameOver(game)
+    }
 }
+
+function showGameOver(game) {
+    document.getElementById('regenerateMap').classList.add('hidden')
+    document.getElementById('difficultyInfo').classList.add('hidden')
+    document.getElementById('game').classList.add('hidden')
+    game.scene.pause()
+    stopAudio('backgroundMusic', game)
+    document.getElementById('gameOver').classList.remove('hidden')
+} 
 
 function onFinishGame() {
     stopAudio('backgroundMusic', this)
     playAudio('winMusic', this, {loop: true, volume: 0.5})
-    finishGameDebug(this)
+    document.getElementById('regenerateMap').classList.add('hidden')
+    finishGame(this)
 }
 
 function destroyFireball(fireball) {
@@ -344,13 +469,8 @@ function destroyFireball(fireball) {
     })
 }
 
-// Debug end
-function finishGameDebug(game) {
+function finishGame(game) {
     game.scene.pause()
     document.getElementsByClassName('finalTime')[0].innerHTML = 'Time: ' + `${pad(minutes)}:${pad(seconds)}`
-    document.getElementById('endGame').classList.remove('hidden')
+    document.getElementById('gameWin').classList.remove('hidden')
 }
-
-/// ---- TO DO:
-/// Next: Random generation - 3 difficulty lvls
-/// LoadScreen - Menu - Credits - Controls
