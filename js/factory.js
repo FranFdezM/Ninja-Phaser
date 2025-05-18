@@ -1,86 +1,214 @@
+import { config } from './game.js'
+
+const floorbrickWidth = 228
+const platformWidth = 228
+const spikesWidth = 78
+
+var goalPosition = []
+var floorBrickPositionsXY = []
+var platformPositionsXY = []
+var spikesPositionsXY = []
+var groundLocationsXY = []
+var enemyPositions = []
+var enemy2Positions = []
+
+var fireballsNumber = 0
+
+var newMap = true
+
 export const generateFactory = (id, game, number, posX, startY, lastY) => {
+    const widthOfBounds = game.physics.world.bounds.width
+    const heightOfBounds = game.physics.world.bounds.height
+    const platformGround = heightOfBounds - 120
+
+    let groundSelection
+    let enemyLocationX
+    let enemyLocationY
+
+    groundLocationsXY.length = 0
+
     switch (id) {
         case 'clouds':
             let pathX = posX
-            let endX = 5000
+            let endX = widthOfBounds
             let calculatedX = (endX - posX) / number
 
             for (let i = 0; i < number; i++) {
                 if (pathX > endX) {
                     break
                 }
-                game.add.image(pathX, Phaser.Math.Between(startY,lastY), 'cloud' + Phaser.Math.Between(1,2))
+                game.add.image(pathX, Phaser.Math.Between(startY,lastY), 'cloud' + Phaser.Math.Between(1,2)) // Random clouds
                 pathX += calculatedX
             }
             break
         case 'goal':
             game[id] = game.physics.add.staticGroup()
-            setProperties(game[id].create(posX, startY, id))
+            if (newMap) {
+                goalPosition.length = 0
+                goalPosition.push([posX, startY])
+                setProperties(game[id].create(posX, startY, id))
+            }
+            else {
+                setProperties(game[id].create(goalPosition[0][0], goalPosition[0][1], id))
+            }
             break
         case 'floorbricks':
             game[id] = game.physics.add.staticGroup()
-            setProperties(game[id].create(0, startY, id))
-            setProperties(game[id].create(300, startY, id))
-            setProperties(game[id].create(800, startY, id))
-            setProperties(game[id].create(1900, startY, id))
-            setProperties(game[id].create(2300, startY, id))
-            setProperties(game[id].create(2600, startY, id))
-            setProperties(game[id].create(3000, startY, id))
-            setProperties(game[id].create(3228, startY, id))
-            setProperties(game[id].create(3500, startY, id))
-            setProperties(game[id].create(3728, startY, id))
-            setProperties(game[id].create(3956, startY, id))
-            setProperties(game[id].create(4184, startY, id))
-            setProperties(game[id].create(4400, startY, id))
+            if (newMap) {
+
+                floorBrickPositionsXY.length = 0
+
+                let floorBrickX = 0
+
+                setProperties(game[id].create(floorBrickX, startY, id)) // Start
+                floorBrickPositionsXY.push([floorBrickX,startY]) // Start position
+
+                setProperties(game[id].create(widthOfBounds - 228, startY, id)) // Goal
+
+                for (let i = 0; i < number; i++) {
+                    floorBrickX += (widthOfBounds/number + Phaser.Math.Between(-100,100))
+                    if (floorBrickX > 0 && floorBrickX < (widthOfBounds - 228)) {
+                        setProperties(game[id].create(floorBrickX, startY, id))
+                    }
+                    floorBrickPositionsXY.push([floorBrickX,startY])
+                }
+
+                floorBrickPositionsXY.push([widthOfBounds - 228,startY]) // Goal position
+            }
+            else {
+                for (let i = 0; i < floorBrickPositionsXY.length; i++) {
+                    setProperties(game[id].create(floorBrickPositionsXY[i][0], floorBrickPositionsXY[i][1], id))
+                }
+            }
+            console.log("Floorbricks:")
+            console.log(floorBrickPositionsXY)
             break
-        case 'platform':
+        case 'platforms':
             game[id] = game.physics.add.staticGroup()
-            setProperties(game[id].create(150, startY - 150, id))
-            setProperties(game[id].create(1028, startY - 170, id))
-            setProperties(game[id].create(1228, startY - 300, id))
-            setProperties(game[id].create(1600, startY - 100, id))
-            setProperties(game[id].create(2000, startY - 170, id))
-            setProperties(game[id].create(2600, startY - 170, id))
-            setProperties(game[id].create(3000, startY - 250, id))
-            setProperties(game[id].create(3230, startY - 250, id))
-            setProperties(game[id].create(3700, startY - 120, id))
-            setProperties(game[id].create(3800, startY - 250, id))
-            setProperties(game[id].create(4000, startY - 150, id))
-            setProperties(game[id].create(4200, startY - 280, id))
-            setProperties(game[id].create(4450, startY - 380, id))
-            setProperties(game[id].create(4772, startY - 150, id))
+            if (newMap) {
+
+                platformPositionsXY.length = 0
+
+                let platformPositionX = 0
+                let platformPositionY = 0
+
+                while(platformPositionX < widthOfBounds) {
+                    if (platformPositionsXY.length == 0) {
+                        platformPositionX = Phaser.Math.Between(posX,300)
+                        platformPositionY = startY
+                        setProperties(game[id].create(platformPositionX, platformPositionY, id))
+                    }
+                    else {
+                        switch (config.difficulty) {
+                            case 'easy':
+                                platformPositionX += (platformWidth + Phaser.Math.Between(30,80))
+                                platformPositionY = platformPositionsXY[platformPositionsXY.length - 1][1] + Phaser.Math.Between(-80,300)
+                                while (platformPositionY > platformGround || platformPositionY < lastY) {
+                                    platformPositionY = platformPositionsXY[platformPositionsXY.length - 1][1] + Phaser.Math.Between(-80,300)
+                                }
+                                break
+                            case 'normal':
+                                platformPositionX += (platformWidth + Phaser.Math.Between(50,100))
+                                platformPositionY = platformPositionsXY[platformPositionsXY.length - 1][1] + Phaser.Math.Between(-90,300)
+                                while (platformPositionY > platformGround || platformPositionY < lastY) {
+                                    platformPositionY = platformPositionsXY[platformPositionsXY.length - 1][1] + Phaser.Math.Between(-90,300)
+                                }
+                                break
+                            case 'hard':
+                                platformPositionX += (platformWidth + Phaser.Math.Between(70,100))
+                                platformPositionY = platformPositionsXY[platformPositionsXY.length - 1][1] + Phaser.Math.Between(-90,300)
+                                while (platformPositionY > platformGround || platformPositionY < lastY) {
+                                    platformPositionY = platformPositionsXY[platformPositionsXY.length - 1][1] + Phaser.Math.Between(-90,300)
+                                }
+                                break
+                        }
+                        if ((platformPositionX + platformWidth) > widthOfBounds) {
+                            break
+                        }
+                        setProperties(game[id].create(platformPositionX, platformPositionY, id)) 
+                    }
+                    
+                    platformPositionsXY.push([platformPositionX,platformPositionY])
+                }
+            }
+            else {
+                for (let i = 0; i < platformPositionsXY.length; i++) {
+                    setProperties(game[id].create(platformPositionsXY[i][0], platformPositionsXY[i][1], id))
+                }
+            }
+            console.log("Platforms:")
+            console.log(platformPositionsXY)
             break
         case "spikes":
             game[id] = game.physics.add.staticGroup()
-            setProperties(game[id].create(400, startY - 73, id))
-            setProperties(game[id].create(1600, startY - 148, id))
-            setProperties(game[id].create(1710, startY - 148, id))
-            setProperties(game[id].create(1742, startY - 148, id))
-            setProperties(game[id].create(2300, startY - 73, id))
-            setProperties(game[id].create(2400, startY - 73, id))
-            setProperties(game[id].create(2750, startY - 73, id))
-            setProperties(game[id].create(3000, startY - 73, id))
-            setProperties(game[id].create(3078, startY - 73, id))
-            setProperties(game[id].create(3300, startY - 73, id))
-            setProperties(game[id].create(3378, startY - 73, id))
-            setProperties(game[id].create(3850, startY - 168, id))
-            setProperties(game[id].create(4000, startY - 73, id))
-            setProperties(game[id].create(4150, startY - 73, id))
-            setProperties(game[id].create(4270, startY - 327, id))
+            if (newMap) {
+
+                spikesPositionsXY.length = 0
+                
+                let spikeFloorHeight = 73 //Height of floor for spikes
+                let spikePlatformHeight = 48 //Height of platform for spikes
+                let attempts = 0
+                
+                for (let i = 0; i < number; i++) {
+                    attempts = 0
+                    switch (Phaser.Math.Between(1,3)) { // 1/3 chance of floor, 2/3 chance of platform
+                        case 1:
+                            let floorBrickSelectionIsNew = false
+                            let floorBrickSelection
+                            let floorBrickSelectionX
+                            while (!floorBrickSelectionIsNew && attempts < 50) {
+                                floorBrickSelection = floorBrickPositionsXY[Phaser.Math.Between(1,floorBrickPositionsXY.length - 1)]
+                                floorBrickSelectionX = floorBrickSelection[0] + Phaser.Math.Between(0,floorbrickWidth - spikesWidth)
+                                if (spikesPositionsXY.length == 0 || !isCoordinateInRange(spikesPositionsXY,floorBrickSelectionX,spikesWidth)) {
+                                    floorBrickSelectionIsNew = true
+                                }
+                                attempts++
+                            }
+                            let floorBrickSelectionY = floorBrickSelection[1] - spikeFloorHeight
+                            setProperties(game[id].create(floorBrickSelectionX,floorBrickSelectionY, id))
+                            spikesPositionsXY.push([floorBrickSelectionX,floorBrickSelectionY])
+                            break
+                        case 2:
+                        case 3:
+                            let platformBrickSelectionIsNew = false
+                            let platformSelection
+                            let platformSelectionX
+                            while (!platformBrickSelectionIsNew && attempts < 50) {
+                                platformSelection = platformPositionsXY[Phaser.Math.Between(0,platformPositionsXY.length - 1)]
+                                platformSelectionX = platformSelection[0] + Phaser.Math.Between(0,platformWidth - spikesWidth)
+                                if (spikesPositionsXY.length == 0 || !isCoordinateInRange(spikesPositionsXY,platformSelectionX,spikesWidth)) {
+                                    platformBrickSelectionIsNew = true
+                                }
+                                attempts++
+                            }
+                            let platformSelectionY = platformSelection[1] - spikePlatformHeight
+                            setProperties(game[id].create(platformSelectionX,platformSelectionY, id))
+                            spikesPositionsXY.push([platformSelectionX,platformSelectionY])
+                            break
+                    }
+                }
+            }
+            else {
+                for (let i = 0; i < spikesPositionsXY.length; i++) {
+                    setProperties(game[id].create(spikesPositionsXY[i][0], spikesPositionsXY[i][1], id))
+                }
+            }
+            console.log("Spikes:")
+            console.log(spikesPositionsXY)
             break
         case "enemies":
             game[id] = game.physics.add.group()
-            let enemyPositions = [
-                { x: 1150, y: startY - 218 },
-                { x: 1350, y: startY - 300 },
-                { x: 3050, y: startY - 300 },
-                { x: 3150, y: startY - 300 },
-                { x: 3300, y: startY - 300 },
-                { x: 3350, y: startY - 300 },
-                { x: 4320, y: startY - 300 },
-                { x: 4500, y: startY - 218 },
-                { x: 4600, y: startY - 400 }
-            ]
+            let enemyHeight = 200
+            if (newMap) {
+                groundLocationsXY = groundLocationsXY.concat(floorBrickPositionsXY).concat(platformPositionsXY)
+                enemyPositions.length = 0
+                for (let i = 0; i < number; i++) {
+                    groundSelection = groundLocationsXY[Phaser.Math.Between(3,groundLocationsXY.length - 1)]
+                    enemyLocationX = Phaser.Math.Between(groundSelection[0], groundSelection[0] + 150)
+                    enemyLocationY = groundSelection[1] - enemyHeight
+                    enemyPositions.push({ x: enemyLocationX, y: enemyLocationY }) 
+                }
+            }
             enemyPositions.forEach(pos => {
                 let enemy = game[id].create(pos.x, pos.y, 'enemy')
                 enemy.anims.play('enemy-run', true)
@@ -91,55 +219,62 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
                      .setOffset(game.player.body.offset.x, 32)
                      .flipX = true
             })
+            console.log("Basic Enemies: " + (newMap == true ? number : enemyPositions.length))
             break
         case "enemies2":
             game[id] = game.physics.add.group()
-            let enemy2Positions = [
-                { x: 950, y: startY },
-                { x: 2000, y: startY - 50 },
-                { x: 2100, y: startY - 300 },
-                { x: 2700, y: startY - 300 },
-                { x: 3190, y: startY },
-                { x: 3770, y: startY - 200 },
-                { x: 3900, y: startY - 300 },
-                { x: 4120, y: startY - 200 }
-            ]
-            
+            let enemy2Height = 200
+            if (newMap) {
+                groundLocationsXY = groundLocationsXY.concat(floorBrickPositionsXY).concat(platformPositionsXY)
+                enemy2Positions.length = 0
+                for (let i = 0; i < number; i++) {
+                    groundSelection = groundLocationsXY[Phaser.Math.Between(3,groundLocationsXY.length - 1)]
+                    enemyLocationX = Phaser.Math.Between(groundSelection[0], groundSelection[0] + 150)
+                    enemyLocationY = groundSelection[1] - enemy2Height
+                    enemy2Positions.push({ x: enemyLocationX, y: enemyLocationY }) 
+                }
+            }
             enemy2Positions.forEach(pos => {
                 let enemy = game[id].create(pos.x, pos.y, 'enemy_2')
                 enemy.anims.play('enemy_2-run', true)
                 enemy.setScale(2)
-                        .setOrigin(0, 0)
-                        .setCollideWorldBounds(true)
-                        .setSize(12, 16, true)
-                        .setOffset(game.player.body.offset.x, 32)
-                        .flipX = true
+                     .setOrigin(0, 0)
+                     .setSize(12, 16, true)
+                     .setCollideWorldBounds(true)
+                     .setOffset(game.player.body.offset.x, 32)
+                     .flipX = true
             })
+            console.log("Medium Enemies: " + (newMap == true ? number : enemy2Positions.length))
             break
         case "fireballs":
             const spawnInterval = 1000
             game[id] = game.physics.add.group({
                 collideWorldBounds: true
             })
-            
             game.time.addEvent({
                 delay: spawnInterval,
                 callback: spawnFireballs,
-                args: [number, game],
+                args: [newMap == true ? number : fireballsNumber, game],
                 callbackScope: game,
                 loop: true
             })
+            console.log("Fireballs: " + fireballsNumber)
             break
         default:
             break
     }
 }
 
+export const setNewMap = (value) => {
+    newMap = value
+}
+
 function spawnFireballs(number, game) {
     const cameraView = game.cameras.main.worldView
-    var fireballsPerInterval
-    fireballsPerInterval = number
-    for (let i = 0; i < fireballsPerInterval; i++) {
+    if (newMap) {
+        fireballsNumber = number
+    }
+    for (let i = 0; i < fireballsNumber; i++) {
         const x = Phaser.Math.Between(cameraView.x, cameraView.x + cameraView.width)
         const y = cameraView.y
         let fireball = game.fireballs.create(x, y, 'fireball')
@@ -153,3 +288,7 @@ function setProperties(elem) {
     .setScale(2)
     .refreshBody()
 }
+
+function isCoordinateInRange(array, newX, range) {
+    return array.some(item => Math.abs(item[0] - newX) <= range)
+  }
