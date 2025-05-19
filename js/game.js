@@ -23,6 +23,7 @@ import { setNewMap } from "./factory.js"
 var gameStart
 var difficulty
 var ground
+var bounds
 var newMap = true
 
 // Timer
@@ -126,7 +127,6 @@ function preload() {
 }
 
 function create() {
-    let bounds = 0
     let floorbrickQuantity = 0
     let platformHeightStart = Phaser.Math.Between(ground,ground-90)
     let platformHeightLimit = 0
@@ -136,7 +136,7 @@ function create() {
     let fireballsQuantity = 0
     switch (config.difficulty) {
         case 'easy':
-            bounds = Phaser.Math.Between(6000,7000)
+            if (newMap) bounds = Phaser.Math.Between(6000,7000)
             floorbrickQuantity = Phaser.Math.Between(15,20)
             platformHeightLimit = ground-100
             spikesQuantity = Phaser.Math.Between(20,30)
@@ -145,7 +145,7 @@ function create() {
             fireballsQuantity = 0
             break
         case 'normal':
-            bounds = Phaser.Math.Between(10000,11000)
+            if (newMap) bounds = Phaser.Math.Between(10000,11000)
             floorbrickQuantity = Phaser.Math.Between(10,15)
             platformHeightLimit = ground-200
             spikesQuantity = Phaser.Math.Between(30,50)
@@ -154,7 +154,7 @@ function create() {
             fireballsQuantity = Phaser.Math.Between(0,1)
             break
         case 'hard':
-            bounds = Phaser.Math.Between(15000,16000)
+            if (newMap) bounds = Phaser.Math.Between(15000,16000)
             floorbrickQuantity = Phaser.Math.Between(5,10)
             platformHeightLimit = ground-280
             spikesQuantity = Phaser.Math.Between(50,80)
@@ -163,7 +163,8 @@ function create() {
             fireballsQuantity = Phaser.Math.Between(1,2)
             break
     }
-    this.physics.world.setBounds(0,0,bounds+100,config.height)
+    
+    this.physics.world.setBounds(0,0,bounds,config.height)
     generateFactory('clouds',this,30,100,50,200)
     generateFactory('goal',this,1,bounds - 100,ground)
     generateFactory('floorbricks',this,floorbrickQuantity,0,config.height)
@@ -178,7 +179,7 @@ function create() {
     this.player.body.setOffset(this.player.body.offset.x, 32)
     this.player.isJumping = false
 
-    this.cameras.main.setBounds(0, 0, bounds+100, config.height)
+    this.cameras.main.setBounds(0, 0, bounds, config.height)
 
     // Debug Mode
     if (debugMode) {
