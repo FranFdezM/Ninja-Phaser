@@ -157,7 +157,7 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
                             let floorBrickSelection
                             let floorBrickSelectionX
                             while (!floorBrickSelectionIsNew && attempts < 50) {
-                                floorBrickSelection = floorBrickPositionsXY[Phaser.Math.Between(1,floorBrickPositionsXY.length - 1)]
+                                floorBrickSelection = floorBrickPositionsXY[Phaser.Math.Between(1,floorBrickPositionsXY.length - 2)]
                                 floorBrickSelectionX = floorBrickSelection[0] + Phaser.Math.Between(0,floorbrickWidth - spikesWidth)
                                 if (spikesPositionsXY.length == 0 || !isCoordinateInRange(spikesPositionsXY,floorBrickSelectionX,spikesWidth)) {
                                     floorBrickSelectionIsNew = true

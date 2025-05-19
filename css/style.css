@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'pixel';
-    src: url('/assets/fonts/pixel.ttf');
+    src: url('../assets/fonts/Pixel.ttf') format('truetype');
 }
 
 @keyframes rainbow {

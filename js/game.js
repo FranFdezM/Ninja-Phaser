@@ -141,7 +141,7 @@ function create() {
             platformHeightLimit = ground-100
             spikesQuantity = Phaser.Math.Between(20,30)
             enemiesQuantity = Phaser.Math.Between(6,12)
-            enemies2Quantity = Phaser.Math.Between(3,5)
+            enemies2Quantity = 1
             fireballsQuantity = 0
             break
         case 'normal':
@@ -163,7 +163,7 @@ function create() {
             fireballsQuantity = Phaser.Math.Between(1,2)
             break
     }
-    this.physics.world.setBounds(0,0,bounds,config.height)
+    this.physics.world.setBounds(0,0,bounds+100,config.height)
     generateFactory('clouds',this,30,100,50,200)
     generateFactory('goal',this,1,bounds - 100,ground)
     generateFactory('floorbricks',this,floorbrickQuantity,0,config.height)
@@ -178,7 +178,7 @@ function create() {
     this.player.body.setOffset(this.player.body.offset.x, 32)
     this.player.isJumping = false
 
-    this.cameras.main.setBounds(0, 0, bounds, config.height)
+    this.cameras.main.setBounds(0, 0, bounds+100, config.height)
 
     // Debug Mode
     if (debugMode) {
