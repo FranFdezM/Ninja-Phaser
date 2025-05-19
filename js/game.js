@@ -24,6 +24,7 @@ var gameStart
 var difficulty
 var ground
 var bounds
+var regenOportunity = 0
 var newMap = true
 
 // Timer
@@ -41,6 +42,7 @@ const clickSound = document.getElementById("click-sound")
 
 document.querySelectorAll(".option").forEach(el => {
   el.addEventListener("click", () => {
+    if (el.classList.contains('slashed')) return
     clickSound.play()
   })
 })
@@ -93,23 +95,34 @@ window.startGame = () => {
     document.getElementById('restart').classList.remove('hidden')
 }
 
-window.regenerateMap = () => {
-    nextGame()
-}
-
-window.nextGame = function() {
-    gameStart.destroy(true)
-    let gameContainer = document.getElementById('game')
-    gameContainer.innerHTML = ''
-    newMap = true
-    setNewMap(newMap)
-    gameStart = new Phaser.Game(config)
-    document.getElementById('gameWin').classList.add('hidden')
-    document.getElementById('gameOver').classList.add('hidden')
-    document.getElementById('game').classList.remove('hidden')
-    document.getElementById('difficultyInfo').classList.remove('hidden')
-    document.getElementById('regenerateMap').classList.remove('hidden')
-    pausedTime = true
+window.nextGame = function(state) {
+    if (state == 'regenerate') {
+        regenOportunity += 1
+        if (regenOportunity == 2) {
+            clickSound.play()
+            document.getElementById('regenerateMap').classList.add('slashed')
+            document.getElementById('regenerateMap').classList.remove('option')
+        }
+    }
+    else {
+        regenOportunity = 0
+        document.getElementById('regenerateMap').classList.remove('slashed')
+        document.getElementById('regenerateMap').classList.add('option')
+    }
+    if (regenOportunity < 3) {
+        gameStart.destroy(true)
+        let gameContainer = document.getElementById('game')
+        gameContainer.innerHTML = ''
+        newMap = true
+        setNewMap(newMap)
+        gameStart = new Phaser.Game(config)
+        document.getElementById('gameWin').classList.add('hidden')
+        document.getElementById('gameOver').classList.add('hidden')
+        document.getElementById('game').classList.remove('hidden')
+        document.getElementById('difficultyInfo').classList.remove('hidden')
+        document.getElementById('regenerateMap').classList.remove('hidden')
+        pausedTime = true
+    }
 }
 
 function preload() {
@@ -241,6 +254,7 @@ function create() {
     //Life creation
     if (newMap) {
         this.lives = 3
+        this.lives -= regenOportunity
         newMap = false
     }
     for (let i = 0; i < this.lives; i++) {

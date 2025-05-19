@@ -65,7 +65,8 @@ body {
 #gameOver, 
 #difficultyInfo, 
 #gameWin h2.finalTime, 
-#gameWin h1 {
+#gameWin h1,
+#regenerateMap {
     user-select: none;
 }
 
@@ -115,6 +116,15 @@ body {
 
 .slashed {
     text-decoration: line-through;
+    text-decoration-thickness: 5px;
+    text-decoration-color: black;
+    user-select: none;
+    color: grey !important;
+}
+
+.slashed:hover {
+    color:grey !important;
+    cursor: not-allowed !important;
 }
 
 .hidden {
