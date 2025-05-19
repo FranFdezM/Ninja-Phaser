@@ -21,7 +21,6 @@ import { setNewMap } from "./factory.js"
 
 // ------- Global game variables
 var gameStart
-var gameMain
 var difficulty
 var ground
 var newMap = true
@@ -113,7 +112,6 @@ window.nextGame = function() {
 }
 
 function preload() {
-    gameMain = this
     //console.clear()
     //console.log("Difficulty: " + config.difficulty)
     debugMode = false
