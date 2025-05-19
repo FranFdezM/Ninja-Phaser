@@ -258,6 +258,7 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
                 callbackScope: game,
                 loop: true
             })
+            fireballsNumber = number
             //console.log("Fireballs: " + fireballsNumber)
             break
         default:
@@ -271,10 +272,7 @@ export const setNewMap = (value) => {
 
 function spawnFireballs(number, game) {
     const cameraView = game.cameras.main.worldView
-    if (newMap) {
-        fireballsNumber = number
-    }
-    for (let i = 0; i < fireballsNumber; i++) {
+    for (let i = 0; i < number; i++) {
         const x = Phaser.Math.Between(cameraView.x, cameraView.x + cameraView.width)
         const y = cameraView.y
         let fireball = game.fireballs.create(x, y, 'fireball')
