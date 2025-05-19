@@ -256,7 +256,8 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
                 callback: spawnFireballs,
                 args: [newMap == true ? number : fireballsNumber, game],
                 callbackScope: game,
-                loop: true
+                loop: false,
+                repeat: 50
             })
             fireballsNumber = number
             //console.log("Fireballs: " + fireballsNumber)
