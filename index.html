@@ -13,31 +13,47 @@
         <div id="menuContainer">
             <div id="difficultySelector">
                 <h1>Select Difficulty:</h1>
-                <h2 onclick="setDifficulty('easy')" class="easy option">Easy</h2>
-                <h2 onclick="setDifficulty('normal')" class="normal option">Normal</h2>
-                <h2 onclick="setDifficulty('hard')" class="hard option">Hard</h2>
+                <button onclick="setDifficulty('easy')" class="easy option">Easy</button>
+                <button onclick="setDifficulty('normal')" class="normal option">Normal</button>
+                <button onclick="setDifficulty('hard')" class="hard option">Hard</button>
             </div>
             <div id="startGame" class="hidden">
-                <h1 class="option" onclick="startGame()">Start Game</h1>
+                <button class="option" onclick="startGame()">Start Game</button>
+                <button class="option" onclick="showLeaderboard()">Leaderboard</button>
                 <h2>Difficulty selected: <span id="selectedDifficulty"></span></h2>
-                <h2 id="return" class="option" onclick="window.location.reload();">Return</h2>
+                <button id="return" class="option" onclick="returnToDifficultySelection()">Return</button>
+            </div>
+            <div id="leaderboardContainer" class="hidden">
+                <div id="leaderboard"></div>
+                <button id="returnToStart" class="option" onclick="returnToStart()">Return</button>
             </div>
         </div>
         <div id="gameContainer">
             <h3 id="difficultyInfo" class="hidden"></h3>
             <div id="game"></div>
-            <h2 onclick="nextGame('regenerate')" class="hidden option" id="regenerateMap" title="It will cost you 1 permanent heart">Regenerate Map</h2>
+            <button onclick="nextGame('regenerate')" class="hidden option" id="regenerateMap" title="It will cost you 1 permanent heart">Regenerate Map</button>
             <div id="gameOver" class="hidden">
                 <h1>Game Over</h1>
-                <h2 id="retry" class="option" onclick="nextGame('retry')">Retry</h2>
+                <button id="retry" class="option" onclick="nextGame('retry')">Retry</button>
+                <button class="saveAndRestart option" onclick="saveAndRestartGame()">Save and Restart Game</button>
             </div>
             <div id="gameWin" class="hidden">
                 <h1>You Win!</h1>
                 <h2 class="finalTime"></h2>
-                <h2 id="nextMap" class="option" onclick="nextGame('next')">Next Map</h2>
+                <button id="nextMap" class="option" onclick="nextGame('next')">Next Map</button>
+                <button class="saveAndRestart option" onclick="saveAndRestartGame()">Save and Restart Game</button>
             </div>
-            <h2 id="restart" class="option hidden" onclick="window.location.reload()">Restart Game</h2>
+             <div id="saveGameContainer" class="hidden">
+                <div class="saveGameContent">
+                    <button class="close-btn option" onclick="closeSaveGameWindow()">×</button>
+                    <label for="nameInput">Type name:</label>
+                    <input type="text" id="nameInput" maxlength="7" />
+                    <button class="save-btn option" onclick="saveRecordAndRestartGame()">Save</button>
+                </div>
+            </div>
+            <button id="restart" class="option hidden" onclick="finishAndRestartGame()">Restart Game</button>
             <audio id="click-sound" src="assets/sound/effects/option.ogg" preload="auto"></audio>
+            <audio id="save-sound" src="assets/sound/effects/save.mp3" preload="auto"></audio>
         </div>
     </body>
 </html>
