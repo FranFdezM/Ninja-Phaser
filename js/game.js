@@ -527,6 +527,12 @@ function showGameOver(game) {
     game.scene.pause()
     stopAudio('backgroundMusic', game)
     document.getElementById('gameOver').classList.remove('hidden')
+    if (completedMaps > 0) {
+        document.querySelector('#gameOver .saveAndRestart').classList.remove('hidden')
+    }
+    else {
+        document.querySelector('#gameOver .saveAndRestart').classList.add('hidden')
+    }
 } 
 
 function onFinishGame() {
