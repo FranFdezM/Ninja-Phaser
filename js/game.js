@@ -199,21 +199,21 @@ function create() {
             break
         case 'normal':
             if (newMap) bounds = Phaser.Math.Between(10000,11000)
-            floorbrickQuantity = Phaser.Math.Between(10,15)
+            floorbrickQuantity = Phaser.Math.Between(13,15)
             platformHeightLimit = ground-200
-            spikesQuantity = Phaser.Math.Between(30,50)
+            spikesQuantity = Phaser.Math.Between(30,40)
             enemiesQuantity = Phaser.Math.Between(5,10)
-            enemies2Quantity = Phaser.Math.Between(5,8)
+            enemies2Quantity = Phaser.Math.Between(3,5)
             fireballsQuantity = Phaser.Math.Between(0,1)
             break
         case 'hard':
             if (newMap) bounds = Phaser.Math.Between(15000,16000)
             floorbrickQuantity = Phaser.Math.Between(5,10)
-            platformHeightLimit = ground-280
-            spikesQuantity = Phaser.Math.Between(50,80)
-            enemiesQuantity = Phaser.Math.Between(3,8)
-            enemies2Quantity = Phaser.Math.Between(8,10)
-            fireballsQuantity = Phaser.Math.Between(1,2)
+            platformHeightLimit = ground-260
+            spikesQuantity = Phaser.Math.Between(40,70)
+            enemiesQuantity = Phaser.Math.Between(5,10)
+            enemies2Quantity = Phaser.Math.Between(5,7)
+            fireballsQuantity = Phaser.Math.Between(0,2)
             break
     }
     
