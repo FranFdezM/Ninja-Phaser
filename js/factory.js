@@ -247,7 +247,7 @@ export const generateFactory = (id, game, number, posX, startY, lastY) => {
             //console.log("Medium Enemies: " + (newMap == true ? number : enemy2Positions.length))
             break
         case "fireballs":
-            const spawnInterval = 1000
+            const spawnInterval = 1500
             game[id] = game.physics.add.group({
                 collideWorldBounds: true
             })
