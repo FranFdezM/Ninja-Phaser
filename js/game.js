@@ -8,16 +8,19 @@ import { generateFactory } from "./factory.js"
 import { setNewMap } from "./factory.js"
 
 (function() {
-  const originalLog = console.log;
-  let phaserLogged = false;
+  const originalLog = console.log
+  let phaserLogged = false
   console.log = function(...args) {
     if (args[0] && typeof args[0] === 'string' && args[0].includes('Phaser')) {
-      if (phaserLogged) return;
-      phaserLogged = true;
+      if (phaserLogged) return
+      phaserLogged = true
     }
-    originalLog.apply(console, args);
-  };
-})();
+    originalLog.apply(console, args)
+  }
+})()
+
+// Online
+connectWithSupabase('validate_origin', {firstConnection: true})
 
 // ------- Global game variables
 var gameStart
@@ -62,6 +65,31 @@ window.setDifficulty = function(selection) {
     document.getElementById('regenerateMap').classList.add(selection)
     document.getElementById('difficultySelector').classList.add('hidden')
     document.getElementById('nextMap').classList.add(selection)
+    if (!playingOnline) {
+        document.querySelectorAll('.saveAndRestart').forEach(el => el.classList.add('hidden'))
+    }
+    document.querySelectorAll('.saveAndRestart').forEach(el => el.classList.add(selection))
+    document.getElementById('returnToStart').classList.add(selection)
+    document.querySelector('.close-btn').classList.add(selection)
+    document.querySelector('.save-btn').classList.add(selection)
+}
+
+window.returnToDifficultySelection = () => {
+    let difficulty = document.getElementById('selectedDifficulty').innerHTML.toLowerCase()
+    document.getElementById('startGame').classList.add('hidden')
+    document.getElementById('startGame').classList.remove(difficulty)
+    document.getElementById('return').classList.remove(difficulty)
+    document.getElementById('selectedDifficulty').classList.remove(difficulty)
+    document.getElementById('difficultySelector').classList.remove('hidden')
+    document.getElementById('restart').classList.remove(difficulty)
+    document.getElementById('retry').classList.remove(difficulty)
+    document.getElementById('regenerateMap').classList.remove(difficulty)
+    document.getElementById('nextMap').classList.remove(difficulty)
+    document.querySelectorAll('.saveAndRestart').forEach(el => el.classList.remove(difficulty))
+    document.getElementById('returnToStart').classList.remove(difficulty)
+    document.getElementById('difficultyInfo').classList.remove(difficulty)
+    document.querySelector('.close-btn').classList.remove(difficulty)
+    document.querySelector('.save-btn').classList.remove(difficulty)
 }
 
 // Game config
@@ -93,9 +121,21 @@ window.startGame = () => {
     document.getElementById('return').classList.add('hidden')
     document.getElementById('regenerateMap').classList.remove('hidden')
     document.getElementById('restart').classList.remove('hidden')
+    if (playingOnline) {
+        connectWithSupabase('validate_origin', {startGame: document.getElementById('difficultyInfo').innerHTML.toLowerCase()})
+    }
 }
 
 window.nextGame = function(state) {
+    if (playingOnline) {
+        if (state == 'retry') {
+            completedMaps = 0
+            connectWithSupabase('validate_origin', {restartSession: id})
+        }
+        else {
+            connectWithSupabase('validate_origin', {updateSession: id})
+        }
+    }
     if (state == 'regenerate') {
         regenOportunity += 1
         if (regenOportunity == 2) {
@@ -251,6 +291,16 @@ function create() {
     })
     this.timerText.setScrollFactor(0)
 
+    // Online: Completed maps
+    if (completedMaps > 0) {
+        let positionX = config.width - 140
+        let extraX = completedMaps.toString().length * 15
+        this.add.text((positionX - extraX), 12, "Completed: " + completedMaps, {
+            font: "15px pixel",
+            fill: "#ffffff"
+        }).setScrollFactor(0)
+    }
+
     //Life creation
     if (newMap) {
         this.lives = 3
@@ -263,11 +313,6 @@ function create() {
     }
 
     setNewMap(newMap)
-
-    // Debug finish input
-    // this.input.keyboard.on("keydown-P", () => {
-    //     finishGame(this)
-    // })
 }
 
 function update(time) {
@@ -466,6 +511,9 @@ function killPlayer(game) {
     const {scene} = game
     playAudio('deathSound', game)
     scene.restart()
+    if (playingOnline) {
+        connectWithSupabase('validate_origin', {updateSession: id})
+    }
     game.lives -= 1
     if (game.lives == 0) {
         showGameOver(game)
@@ -499,4 +547,137 @@ function finishGame(game) {
     game.scene.pause()
     document.getElementsByClassName('finalTime')[0].innerHTML = 'Time: ' + `${pad(minutes)}:${pad(seconds)}`
     document.getElementById('gameWin').classList.remove('hidden')
+    if (playingOnline) {
+        completedMaps++
+        connectWithSupabase('validate_origin', {victory:true,id: id, time: Math.floor(elapsedTime / 1000)})
+    }
+}
+
+// Online
+
+var playingOnline = false
+var id
+var completedMaps = 0
+
+function connectWithSupabase(endpoint, body = {}) {
+  let bearerPublicToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvaGptZXB5ZXNnY21ncHV1amJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1ODk4MzgsImV4cCI6MjA2MzE2NTgzOH0.v8Y9HLywSTFRVW2hlO6JV391r4LdacWfeX9kwnORflE"
+  fetch(`https://lohjmepyesgcmgpuujbd.supabase.co/functions/v1/${endpoint}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${bearerPublicToken}`
+    },
+    body: JSON.stringify(body)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (endpoint == 'validate_origin') {
+        if (body.firstConnection == true) {
+            console.log(data.message)
+            playingOnline = data.valid
+        }
+        if (["easy","normal","hard"].includes(body.startGame)) {
+            id = data.id
+        }
+        if (body.saveRecord != undefined) {
+            if (data.success) {
+                const saveSound = document.getElementById("save-sound")
+                saveSound.play()
+                saveSound.onended = () => {
+                    connectWithSupabase('validate_origin', {finishSession: id})
+                }
+            }
+            else {
+                console.log("No se ha guardado la partida")
+            }
+        }
+        if (body.finishSession != undefined) {
+            window.location.reload()
+        }
+    }
+    else if(endpoint == 'get_leaderboard') {
+        let difficulty = document.getElementById('selectedDifficulty').innerHTML.toLowerCase()
+        let leaderboardElement = document.getElementById('leaderboard')
+        leaderboardElement.innerHTML = ''
+        switch(difficulty) {
+            case 'easy':
+                leaderboardElement.innerHTML += '<h2 class="easy">Easy</h2>'
+                break
+            case 'normal':
+                leaderboardElement.innerHTML += '<h2 class="normal">Normal</h2>'
+                break
+            case 'hard':
+                leaderboardElement.innerHTML += '<h2 class="hard">Hard</h2>'
+                break
+        }
+        leaderboardElement.innerHTML += `
+            <table id="leaderboardTable" class="leaderboard">
+                <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Completed</th>
+                    <th>Time</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            `
+        const tbody = document.querySelector("#leaderboardTable tbody")
+        tbody.innerHTML = data.map((item, index) =>
+        `<tr>
+            <td>${index + 1}</td>
+            <td>${item.name}</td>
+            <td>${item.mapas_completados}</td>
+            <td>${formatTime(item.total_tiempo)}</td>
+        </tr>`
+        ).join('')
+    }
+  })
+  .catch(err => console.error('Error:', err))
+}
+
+window.showLeaderboard = () => {
+    document.getElementById('startGame').classList.add('hidden')
+    connectWithSupabase('get_leaderboard',{difficulty: document.getElementById('selectedDifficulty').innerHTML.toLowerCase()})
+    document.getElementById('leaderboardContainer').classList.remove('hidden')
+}
+
+window.returnToStart = () => {
+    document.getElementById('leaderboard').innerHTML = ''
+    document.getElementById('leaderboardContainer').classList.add('hidden')
+    document.getElementById('startGame').classList.remove('hidden')
+}
+
+window.saveAndRestartGame = () => {
+    if (playingOnline) {
+        document.getElementById('saveGameContainer').classList.remove('hidden')
+        document.getElementById('nameInput').focus()
+    }
+}
+
+window.finishAndRestartGame = () => {
+    if (playingOnline) {
+        connectWithSupabase('validate_origin', {finishSession: id})
+    }
+    else {
+        window.location.reload()
+    }
+}
+
+window.closeSaveGameWindow = () => {
+    document.getElementById('saveGameContainer').classList.add('hidden')
+    document.getElementById('nameInput').value = ''
+}
+
+window.saveRecordAndRestartGame = () => {
+    if (playingOnline) {
+        connectWithSupabase('validate_origin', {saveRecord: true, name: document.getElementById('nameInput').value, id: id})
+    }
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0')
+  const s = (seconds % 60).toString().padStart(2, '0')
+  return `${m}:${s}`
 }

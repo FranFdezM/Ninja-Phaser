@@ -12,6 +12,10 @@ const init_audios = [
         path: 'assets/sound/effects/jump.wav'
     },
     {
+        key: 'saveSound',
+        path: 'assets/sound/effects/save.mp3'
+    },
+    {
         key: 'backgroundMusic',
         path: 'assets/sound/music/background.mp3'
     },
